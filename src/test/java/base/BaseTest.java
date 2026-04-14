@@ -1,5 +1,6 @@
 package base;
 
+import client.IngredientClient;
 import client.UserClient;
 import data.UserGenerator;
 import io.qameta.allure.Step;
@@ -11,9 +12,12 @@ import model.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
+import java.util.List;
+
 public class BaseTest {
 
     protected final UserClient userClient = new UserClient();
+    protected final IngredientClient ingredientClient = new IngredientClient();
     protected String accessToken;
 
     @BeforeEach
@@ -52,5 +56,26 @@ public class BaseTest {
     @Step("Логин пользователя")
     protected Response loginUser(User user) {
         return userClient.loginUser(new LoginRequest(user.getEmail(), user.getPassword()));
+    }
+
+    @Step("Получить два валидных id ингредиентов")
+    protected List<String> getValidIngredientIds() {
+        Response response = ingredientClient.getIngredients();
+
+        response.then().statusCode(200);
+
+        String firstIngredientId = response.then().extract().path("data[0]._id");
+        String secondIngredientId = response.then().extract().path("data[1]._id");
+
+        return List.of(firstIngredientId, secondIngredientId);
+    }
+
+    @Step("Получить один валидный id ингредиента")
+    protected String getValidIngredientId() {
+        Response response = ingredientClient.getIngredients();
+
+        response.then().statusCode(200);
+
+        return response.then().extract().path("data[0]._id");
     }
 }

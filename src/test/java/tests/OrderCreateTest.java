@@ -10,7 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-import java.util.List;
 
 import static org.hamcrest.Matchers.equalTo;
 
@@ -25,10 +24,7 @@ public class OrderCreateTest extends BaseTest {
         User user = createRandomUser();
         registerUserAndSaveToken(user);
 
-        OrderRequest request = new OrderRequest(List.of(
-                "61c0c5a71d1f82001bdaaa6d",
-                "61c0c5a71d1f82001bdaaa6f"
-        ));
+        OrderRequest request = new OrderRequest(getValidIngredientIds());
 
         Response response = orderClient.createOrderWithAuth(request, accessToken);
 
@@ -39,11 +35,9 @@ public class OrderCreateTest extends BaseTest {
 
     @Test
     @DisplayName("Создание заказа без авторизации")
+    @Description("Проверка успешного создания заказа без авторизации")
     public void createOrderWithoutAuthSuccess() {
-        OrderRequest request = new OrderRequest(List.of(
-                "61c0c5a71d1f82001bdaaa6d",
-                "61c0c5a71d1f82001bdaaa6f"
-        ));
+        OrderRequest request = new OrderRequest(getValidIngredientIds());
 
         Response response = orderClient.createOrderWithoutAuth(request);
 
@@ -54,6 +48,7 @@ public class OrderCreateTest extends BaseTest {
 
     @Test
     @DisplayName("Нельзя создать заказ без ингредиентов")
+    @Description("Проверка ошибки при создании заказа с пустым списком ингредиентов")
     public void createOrderWithoutIngredients() {
         OrderRequest request = new OrderRequest(Collections.emptyList());
 
@@ -67,8 +62,9 @@ public class OrderCreateTest extends BaseTest {
 
     @Test
     @DisplayName("Нельзя создать заказ с невалидным ингредиентом")
+    @Description("Проверка ошибки при создании заказа с неверным ingredient hash")
     public void createOrderWithInvalidIngredient() {
-        OrderRequest request = new OrderRequest(List.of("invalid_hash"));
+        OrderRequest request = new OrderRequest(Collections.singletonList("invalid_hash"));
 
         Response response = orderClient.createOrderWithoutAuth(request);
 
